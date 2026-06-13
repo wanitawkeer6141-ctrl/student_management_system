@@ -217,49 +217,60 @@ int main()
         {
             fp = fopen("students.txt", "r");
             temp = fopen("temp.txt", "w");
-
-            if (fp == NULL)
+        eye:
+            printf("ENTER THE PASSWORD:  ");
+            scanf("%d", &password);
+            if (password == entered_password)
             {
-                printf("No records found.\n");
-                break;
-            }
 
-            printf("Enter Student Name to Delete: ");
-            scanf("%19s", delete_name);
-
-            found = 0;
-
-            while (fscanf(fp,
-                          "%19s %d %19s %d",
-                          s1.name,
-                          &s1.age,
-                          s1.category,
-                          &s1.roll_no) == 4)
-            {
-                if (strcmp(delete_name, s1.name) == 0)
+                if (fp == NULL)
                 {
-                    found = 1;
-                    continue;
+                    printf("No records found.\n");
+                    break;
                 }
 
-                fprintf(temp,
-                        "%s %d %s %d\n",
-                        s1.name,
-                        s1.age,
-                        s1.category,
-                        s1.roll_no);
+                printf("Enter Student Name to Delete: ");
+                scanf("%19s", delete_name);
+
+                found = 0;
+
+                while (fscanf(fp,
+                              "%19s %d %19s %d",
+                              s1.name,
+                              &s1.age,
+                              s1.category,
+                              &s1.roll_no) == 4)
+                {
+                    if (strcmp(delete_name, s1.name) == 0)
+                    {
+                        found = 1;
+                        continue;
+                    }
+
+                    fprintf(temp,
+                            "%s %d %s %d\n",
+                            s1.name,
+                            s1.age,
+                            s1.category,
+                            s1.roll_no);
+                }
+
+                fclose(fp);
+                fclose(temp);
+
+                remove("students.txt");
+                rename("temp.txt", "students.txt");
+
+                if (found)
+                    printf("Student Deleted Successfully!\n");
+                else
+                    printf("Student Not Found.\n");
             }
-
-            fclose(fp);
-            fclose(temp);
-
-            remove("students.txt");
-            rename("temp.txt", "students.txt");
-
-            if (found)
-                printf("Student Deleted Successfully!\n");
             else
-                printf("Student Not Found.\n");
+            {
+                printf("invalid password\n");
+                goto eye;
+            }
 
             break;
         }
