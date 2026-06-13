@@ -1,6 +1,7 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
 
 typedef struct
 {
@@ -13,90 +14,118 @@ typedef struct
 int main()
 {
     int choice;
-    char search[20];
+    int password = 3327;
+    int entered_password;
     int found;
-    student s1;
-    char edit_name[20];
-    char delete[20];
-    int roll_noo;
 
-    FILE *panda;
+    student s1;
+    char search[20];
+    char edit_name[20];
+    char delete_name[20];
+
+    FILE *fp, *temp;
+
+    printf("ENTER PASSWORD: ");
+    scanf("%d", &entered_password);
+
+    if (entered_password != password)
+    {
+        printf("Invalid Password!\n");
+        return 0;
+    }
 
     do
     {
-        printf("\n===== STUDENT MENU =====\n");
-        printf("1. Enter Student Details\n");
+        printf("\n========== STUDENT MANAGEMENT ==========\n");
+        printf("1. Add Student\n");
         printf("2. Search Student\n");
-        printf("3.EDIT\n");
-        printf("4.Delete\n");
-        printf("5. Exit\n");
-
-        printf("Enter choice: ");
+        printf("3. Edit Student\n");
+        printf("4. Delete Student\n");
+        printf("5. View All Students\n");
+        printf("6. Exit\n");
+        printf("Enter Choice: ");
         scanf("%d", &choice);
 
         switch (choice)
         {
         case 1:
+        {
+            fp = fopen("students.txt", "a");
 
-            panda = fopen("lion.txt", "a");
-
-            if (panda == NULL)
+            if (fp == NULL)
             {
                 printf("Error opening file!\n");
-                return 1;
+                break;
             }
 
-            printf("Enter student name: ");
-            scanf("%19s", s1.name);
+            while (1)
+            {
+                int valid = 1;
+
+                printf("Enter Name: ");
+                scanf("%19s", s1.name);
+
+                for (int i = 0; s1.name[i] != '\0'; i++)
+                {
+                    if (isdigit(s1.name[i]))
+                    {
+                        valid = 0;
+                        break;
+                    }
+                }
+
+                if (valid)
+                    break;
+
+                printf("Invalid name! Numbers not allowed.\n");
+            }
 
             do
             {
-                printf("Enter student age: ");
+                printf("Enter Age: ");
                 scanf("%d", &s1.age);
 
                 if (s1.age <= 0)
-                {
-                    printf("Invalid age! Try again.\n");
-                }
+                    printf("Invalid age!\n");
 
             } while (s1.age <= 0);
 
-            printf("Enter category: ");
+            printf("Enter Category: ");
             scanf("%19s", s1.category);
 
-            printf("Enter roll no.:  ");
+            printf("Enter Roll Number: ");
             scanf("%d", &s1.roll_no);
 
-            fprintf(panda,
-                    "Name:%s Age:%d Category:%s ROLL NUMBER:%d\n",
+            fprintf(fp,
+                    "%s %d %s %d\n",
                     s1.name,
                     s1.age,
                     s1.category,
                     s1.roll_no);
 
-            fclose(panda);
+            fclose(fp);
 
-            printf("Student record saved successfully!\n");
+            printf("Student Added Successfully!\n");
             break;
+        }
 
         case 2:
-            
+        {
+            fp = fopen("students.txt", "r");
 
-            panda = fopen("lion.txt", "r");
-
-            if (panda == NULL)
+            if (fp == NULL)
             {
                 printf("No records found.\n");
                 break;
             }
 
-            printf("Enter name to search: ");
+            printf("Enter Name to Search: ");
             scanf("%19s", search);
 
             found = 0;
 
-            while (fscanf(panda,
-                          " Name:%19s Age:%d Category:%19s ROLL NUMBER:%d",
+            while (fscanf(fp,
+                          "%19s %d %19s %d",
                           s1.name,
                           &s1.age,
                           s1.category,
@@ -104,142 +133,175 @@ int main()
             {
                 if (strcmp(search, s1.name) == 0)
                 {
-                    printf("\n===== STUDENT FOUND =====\n");
-                    printf("Name     : %s\n", s1.name);
-                    printf("Age      : %d\n", s1.age);
-                    printf("Category : %s\n", s1.category);
-                    printf("ROLL NUMBER : %d\n",s1.roll_no);
+                    printf("\nStudent Found\n");
+                    printf("Name: %s\n", s1.name);
+                    printf("Age: %d\n", s1.age);
+                    printf("Category: %s\n", s1.category);
+                    printf("Roll No: %d\n", s1.roll_no);
 
                     found = 1;
-                }
-                else
-                {
-                    printf("No student found");
                     break;
                 }
             }
-            break;
-        case 3:
 
-            printf("Enter student name to edit: ");
+            if (!found)
+                printf("Student not found.\n");
+
+            fclose(fp);
+            break;
+        }
+
+        case 3:
+        {
+            fp = fopen("students.txt", "r");
+            temp = fopen("temp.txt", "w");
+
+            if (fp == NULL)
+            {
+                printf("No records found.\n");
+                break;
+            }
+
+            printf("Enter Student Name to Edit: ");
             scanf("%19s", edit_name);
 
-            FILE *panda = fopen("lion.txt", "r");
-            FILE *temp = fopen("temp.txt", "w");
+            found = 0;
 
-            while (fscanf(panda,
-                          " Name:%19s Age:%d Category:%19s ROLL NUMBER:%d",
+            while (fscanf(fp,
+                          "%19s %d %19s %d",
                           s1.name,
                           &s1.age,
-                          s1.category,&s1.roll_no) == 4)
+                          s1.category,
+                          &s1.roll_no) == 4)
             {
                 if (strcmp(edit_name, s1.name) == 0)
                 {
                     found = 1;
 
-                    printf("Enter new name: ");
+                    printf("Enter New Name: ");
                     scanf("%19s", s1.name);
 
-                    printf("Enter new age: ");
+                    printf("Enter New Age: ");
                     scanf("%d", &s1.age);
 
-                    printf("Enter new category: ");
+                    printf("Enter New Category: ");
                     scanf("%19s", s1.category);
 
-                    printf("Enter new Roll number: ");
+                    printf("Enter New Roll Number: ");
                     scanf("%d", &s1.roll_no);
                 }
 
                 fprintf(temp,
-                        "Name:%s Age:%d Category:%s ROLL NUMBER:%d\n",
+                        "%s %d %s %d\n",
                         s1.name,
                         s1.age,
-                        s1.category,s1.roll_no);
+                        s1.category,
+                        s1.roll_no);
             }
 
-            fclose(panda);
+            fclose(fp);
             fclose(temp);
 
-            remove("lion.txt");
-            rename("temp.txt", "lion.txt");
+            remove("students.txt");
+            rename("temp.txt", "students.txt");
 
             if (found)
-            {
-                printf("Record updated successfully.\n");
-            }
+                printf("Record Updated Successfully!\n");
             else
-            {
-                printf("Student not found.\n");
-            }
-            if (found == 0)
-            {
-                printf("No student record found.\n");
-                break;
-            }
+                printf("Student Not Found.\n");
+
+            break;
+        }
 
         case 4:
         {
-            char delete[20];
-            int found = 0;
+            fp = fopen("students.txt", "r");
+            temp = fopen("temp.txt", "w");
 
-            printf("Enter name to delete: ");
-            scanf("%19s", delete);
-
-            FILE *panda = fopen("lion.txt", "r");
-            FILE *temp = fopen("temp.txt", "w");
-
-            if (panda == NULL)
+            if (fp == NULL)
             {
-                printf("File not found.\n");
+                printf("No records found.\n");
                 break;
             }
 
-            while (fscanf(panda,
-                          " Name:%19s Age:%d Category:%19s ROLL NUMBER:%d",
+            printf("Enter Student Name to Delete: ");
+            scanf("%19s", delete_name);
+
+            found = 0;
+
+            while (fscanf(fp,
+                          "%19s %d %19s %d",
                           s1.name,
                           &s1.age,
                           s1.category,
-                         &s1.roll_no) == 4)
+                          &s1.roll_no) == 4)
             {
-                if (strcmp(delete, s1.name) == 0)
+                if (strcmp(delete_name, s1.name) == 0)
                 {
                     found = 1;
                     continue;
                 }
 
                 fprintf(temp,
-                        "Name:%s Age:%d Category:%s ROLL NUMBER:%d\n",
+                        "%s %d %s %d\n",
                         s1.name,
                         s1.age,
-                        s1.category,s1.roll_no);
+                        s1.category,
+                        s1.roll_no);
             }
 
-            fclose(panda);
+            fclose(fp);
             fclose(temp);
 
-            remove("lion.txt");
-            rename("temp.txt", "lion.txt");
+            remove("students.txt");
+            rename("temp.txt", "students.txt");
 
             if (found)
-                printf("Student deleted successfully.\n");
+                printf("Student Deleted Successfully!\n");
             else
-                printf("Student not found.\n");
+                printf("Student Not Found.\n");
 
             break;
         }
 
-            fclose(panda);
-            break;
-
         case 5:
-            printf("Exiting program...\n");
+        {
+            fp = fopen("students.txt", "r");
+
+            if (fp == NULL)
+            {
+                printf("No records found.\n");
+                break;
+            }
+
+            printf("\n===== ALL STUDENTS =====\n");
+
+            while (fscanf(fp,
+                          "%19s %d %19s %d",
+                          s1.name,
+                          &s1.age,
+                          s1.category,
+                          &s1.roll_no) == 4)
+            {
+                printf("\nName      : %s", s1.name);
+                printf("\nAge       : %d", s1.age);
+                printf("\nCategory  : %s", s1.category);
+                printf("\nRoll No   : %d\n", s1.roll_no);
+            }
+
+            fclose(fp);
+            break;
+        }
+
+        case 6:
+            printf("Exiting Program...\n");
             break;
 
         default:
-            printf("Invalid choice!\n");
+            printf("Invalid Choice!\n");
         }
 
-    } while (choice != 5);
+    } while (choice != 6);
 
     return 0;
 }
