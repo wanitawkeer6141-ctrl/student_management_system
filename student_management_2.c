@@ -9,6 +9,7 @@ typedef struct
     int age;
     char category[20];
     int roll_no;
+
 } student;
 
 int main()
@@ -92,9 +93,42 @@ int main()
 
             printf("Enter Category: ");
             scanf("%19s", s1.category);
-
+            kya_banii:
             printf("Enter Roll Number: ");
             scanf("%d", &s1.roll_no);
+
+            FILE *info;
+            student temp;
+            int duplicate = 0;
+
+            info = fopen("students.txt", "r");
+
+            if (info != NULL)
+            {
+                while (fscanf(info,
+                              "%19s %d %19s %d",
+                              temp.name,
+                              &temp.age,
+                              temp.category,
+                              &temp.roll_no) == 4)
+                {
+                    if (temp.roll_no == s1.roll_no)
+                    {
+                        duplicate = 1;
+                        break;
+                    }
+                }
+
+                fclose(info);
+            }
+
+            if (duplicate)
+            {
+                printf("Roll Number already exists!\n");
+                goto kya_banii;
+                fclose(fp);
+                break;
+            }
 
             fprintf(fp,
                     "%s %d %s %d\n",
@@ -106,8 +140,7 @@ int main()
             fclose(fp);
 
             printf("Student Added Successfully!\n");
-            break;
-        }
+        }break;
 
         case 2:
         {
@@ -212,68 +245,66 @@ int main()
 
             break;
         }
-
         case 4:
         {
+
             fp = fopen("students.txt", "r");
             temp = fopen("temp.txt", "w");
+
+            int correct_password = 3327;
+
         eye:
-            printf("ENTER THE PASSWORD:  ");
-            scanf("%d", &password);
-            if (password == entered_password)
+            printf("ENTER THE PASSWORD: ");
+            if (scanf("%d", &entered_password) != 1)
             {
-
-                if (fp == NULL)
-                {
-                    printf("No records found.\n");
-                    break;
-                }
-
-                printf("Enter Student Name to Delete: ");
-                scanf("%19s", delete_name);
-
-                found = 0;
-
-                while (fscanf(fp,
-                              "%19s %d %19s %d",
-                              s1.name,
-                              &s1.age,
-                              s1.category,
-                              &s1.roll_no) == 4)
-                {
-                    if (strcmp(delete_name, s1.name) == 0)
-                    {
-                        found = 1;
-                        continue;
-                    }
-
-                    fprintf(temp,
-                            "%s %d %s %d\n",
-                            s1.name,
-                            s1.age,
-                            s1.category,
-                            s1.roll_no);
-                }
-
-                fclose(fp);
-                fclose(temp);
-
-                remove("students.txt");
-                rename("temp.txt", "students.txt");
-
-                if (found)
-                    printf("Student Deleted Successfully!\n");
-                else
-                    printf("Student Not Found.\n");
-            }
-            else
-            {
-                printf("invalid password\n");
+                printf("password show be in digit\n");
+                while (getchar() != '\n')
+                    ;
                 goto eye;
             }
 
-            break;
+            if (entered_password != correct_password)
+            {
+                printf("Invalid Password\n");
+                goto eye;
+            }
+
+            printf("Enter Student Name to Delete: \n");
+            scanf("%19s", delete_name);
+
+            found = 0;
+
+            while (fscanf(fp, "%19s %d %19s %d",
+                          s1.name,
+                          &s1.age,
+                          s1.category,
+                          &s1.roll_no) == 4)
+            {
+                if (strcmp(delete_name, s1.name) == 0)
+                {
+                    found = 1;
+                    continue;
+                }
+
+                fprintf(temp, "%s %d %s %d\n",
+                        s1.name,
+                        s1.age,
+                        s1.category,
+                        s1.roll_no);
+            }
+
+            fclose(fp);
+            fclose(temp);
+
+            remove("students.txt");
+            rename("temp.txt", "students.txt");
+
+            if (found)
+                printf("Student Deleted Successfully!\n");
+            else
+                printf("Student Not Found.\n");
         }
+        break;
 
         case 5:
         {
@@ -311,7 +342,6 @@ int main()
         default:
             printf("Invalid Choice!\n");
         }
-
     } while (choice != 6);
 
     return 0;
